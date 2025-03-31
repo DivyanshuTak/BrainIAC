@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 ## Model Checkpoints
 
-Download BrainIAC and downstream model checkpoints: [Model Checkpoints](https://drive.google.com/drive/folders/13xMyLS8vy07dNgWHyXDR4A-O_m7hgZZQ?usp=sharing) and place them in the [checkpoints](./src/BrainIAC/checkpoints) directory.
+Download BrainIAC and downstream model checkpoints: [Model Checkpoints](https://www.dropbox.com/scl/fo/i51xt63roognvt7vuslbl/AG99uZljziHss5zJz4HiFis?rlkey=9w55le6tslwxlfz6c0viylmjb&st=r5nyejyo&dl=0) and place them in the [checkpoints](./src/BrainIAC/checkpoints) directory.
 
 ## Quick Start
 
