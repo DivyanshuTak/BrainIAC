@@ -117,19 +117,19 @@ class MCIInference(BaseConfig):
                 results_df = pd.concat([results_df, result], ignore_index=True)
         
         # log metrics 
-        """metrics = calculate_metrics(
-            np.array(all_probs),
-            np.array(all_predictions),
-            np.array(all_labels)
-        )
+        # metrics = calculate_metrics(
+        #     np.array(all_probs),
+        #     np.array(all_predictions),
+        #     np.array(all_labels)
+        # )
         
     
-        print("\nTest Set Metrics:")
-        print(f"Accuracy: {metrics['accuracy']:.4f}")
-        print(f"Precision: {metrics['precision']:.4f}")
-        print(f"Recall: {metrics['recall']:.4f}")
-        print(f"F1 Score: {metrics['f1']:.4f}")
-        print(f"AUC: {metrics['auc']:.4f}")"""
+        # print("\nTest Set Metrics:")
+        # print(f"Accuracy: {metrics['accuracy']:.4f}")
+        # print(f"Precision: {metrics['precision']:.4f}")
+        # print(f"Recall: {metrics['recall']:.4f}")
+        # print(f"F1 Score: {metrics['f1']:.4f}")
+        # print(f"AUC: {metrics['auc']:.4f}")
         
         # Save results
         print("PredictedLabel", results_df["PredictedLabel"][0])
