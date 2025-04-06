@@ -10,7 +10,8 @@ import nibabel as nib
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dataset2 import MedicalImageDatasetBalancedIntensity3D
 from model import Backbone, SingleScanModelBP, Classifier
-from utils import BaseConfig, plot_km_curve, calculate_metrics
+from utils import BaseConfig
+from .os_utils import plot_km_curve, calculate_metrics
 
 
 #============================
@@ -28,8 +29,8 @@ class OSDataset(MedicalImageDatasetBalancedIntensity3D):
         label = self.dataframe.loc[idx, 'label']
         scan_list = []
         
-        # Load T1CE, FLAIR, T1 and T2 modalities
-        modalities = ["t1n", "t2n", "t1c", "t2f"]
+        # Load T1, T2, T1CE, FLAIR modalities
+        modalities = ["t1n", "t2w", "t1c", "t2f"]
 
         for modality in modalities:
             img_name = os.path.join(self.root_dir, f"{pat_id}_{modality}.nii.gz")
@@ -67,7 +68,7 @@ class OSInference(BaseConfig):
         self.model = SingleScanModelBP(self.backbone, self.classifier)
         
         # Load weights
-        checkpoint = torch.load(config["infer"]["checkpoints"], map_location=self.device)
+        checkpoint = torch.load(config["infer"]["checkpoints"], map_location=self.device, weights_only=False)
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.model = self.model.to(self.device)
         self.model.eval()
@@ -110,7 +111,6 @@ class OSInference(BaseConfig):
                 
                 probs = torch.sigmoid(outputs).cpu().numpy().flatten()
                 preds = (probs > 0.5).astype(int)
-                
                 all_labels.extend(labels.cpu().numpy().flatten())
                 all_predictions.extend(preds)
                 all_probs.extend(probs)
@@ -131,23 +131,25 @@ class OSInference(BaseConfig):
             np.array(all_labels)
         )
         
-        print("\nTest Set Metrics:")
-        print(f"Accuracy: {metrics['accuracy']:.4f}")
-        print(f"Precision: {metrics['precision']:.4f}")
-        print(f"Recall: {metrics['recall']:.4f}")
-        print(f"F1 Score: {metrics['f1']:.4f}")
-        print(f"AUC: {metrics['auc']:.4f}")
+        # print("\nTest Set Metrics:")
+        # print(f"Accuracy: {metrics['accuracy']:.4f}")
+        # print(f"Precision: {metrics['precision']:.4f}")
+        # print(f"Recall: {metrics['recall']:.4f}")
+        # print(f"F1 Score: {metrics['f1']:.4f}")
+        # print(f"AUC: {metrics['auc']:.4f}")
+        
+        print("PredictedLabel", results_df["PredictedLabel"][0])
 
         # Save results
-        results_df.to_csv('./data/output/overall_survival_predictions.csv', index=False)
+        results_df.drop(columns =["PredictedProb", "TrueLabel"] ).to_csv('./data/output/overall_survival_predictions.csv', index=False)
    
-        # KM analysis on test set
-        clinical_df = pd.read_csv("../clinical/clinical_filtered.csv")
-        clinical_df = clinical_df[["pat_id", "survival_years", "deadstatus_event", "survival"]]         
-        split_median = 0.5215  # median threshold calculated using validation data      
-        merged_results = results_df.merge(clinical_df,how = "left")[["pat_id", "PredictedRisk", "survival_years","deadstatus_event", "survival"]]
-        merged_results['group'] = merged_results["PredictedRisk"].apply(lambda x: 'Low Risk' if x < split_median  else 'High Risk')
-        _ = plot_km_curve(merged_results)
+        # Uncomment if clinical data is available to conduct KM analysis on test set
+        # clinical_df = pd.read_csv("../clinical/clinical_filtered.csv")
+        # clinical_df = clinical_df[["pat_id", "survival_years", "deadstatus_event", "survival"]]         
+        # merged_results = results_df.merge(clinical_df,how = "left")[["pat_id", "PredictedRisk", "survival_years","deadstatus_event", "survival"]]
+        # split_median = 0.5215  # median threshold calculated using validation data      
+        # merged_results['group'] = merged_results["PredictedRisk"].apply(lambda x: 'Low Risk' if x < split_median  else 'High Risk')
+        # _ = plot_km_curve(merged_results)
 
 
 if __name__ == "__main__":
