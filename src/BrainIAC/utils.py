@@ -28,7 +28,8 @@ class BaseConfig:
         """Handles variable size of the scans and pads the sequence dimension."""
         images = [item['image'] for item in batch]
         labels = [item['label'] for item in batch]
-        
+        pat_ids = [item['pat_id'] for item in batch]
+
         max_len = self.config["data"]["collate"]  # Single scan input
         padded_images = []
         
@@ -41,7 +42,9 @@ class BaseConfig:
             else:
                 padded_images.append(img)
 
-        return {"image": torch.stack(padded_images, dim=0), "label": torch.stack(labels)}
+        return {"image": torch.stack(padded_images, dim=0), "label": torch.stack(labels),
+                        "pat_id": pat_ids 
+}
 
     def get_config(self):
         return self.config
